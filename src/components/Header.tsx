@@ -1,9 +1,12 @@
 import React from 'react';
 import { Box, Flex, Heading, Button, Spacer } from '@chakra-ui/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import UserProfile from './auth/UserProfile';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Box as="header" bg="teal.500" color="white" p={4} shadow="md">
@@ -14,13 +17,28 @@ const Header: React.FC = () => {
           </Link>
         </Heading>
         <Spacer />
-        <Button
-          colorScheme="whiteAlpha"
-          size="sm"
-          onClick={() => navigate('/dogs/new')}
-        >
-          Add New Dog
-        </Button>
+
+        {isAuthenticated ? (
+          <>
+            <Button
+              colorScheme="whiteAlpha"
+              size="sm"
+              mr={4}
+              onClick={() => navigate('/dogs/new')}
+            >
+              Add New Dog
+            </Button>
+            <UserProfile />
+          </>
+        ) : (
+          <Button
+            colorScheme="whiteAlpha"
+            size="sm"
+            onClick={() => navigate('/login')}
+          >
+            Sign In
+          </Button>
+        )}
       </Flex>
     </Box>
   );

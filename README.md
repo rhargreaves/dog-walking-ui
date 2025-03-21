@@ -9,28 +9,75 @@ Frontend React SPA for the [Dog Walking Service](https://github.com/rhargreaves/
 - Update existing dog profiles
 - Upload dog photos
 - Automatic breed detection from photos
+- Authentication with AWS Cognito
+- Protected routes for authorized users
 
-## Development
+## Development Setup
 
 ### Prerequisites
 
-- Node.js 16+ and npm
+- Node.js (v16 or newer)
+- npm
 
-### Setup
+### Installation
 
 1. Clone the repository
 2. Install dependencies:
-   ```
-   make install
-   ```
-3. Create a `.env` file with the API URL:
-   ```
-   REACT_APP_API_BASE_URL=https://your-api-url.com
-   ```
-4. Start the development server:
-   ```
-   make start
-   ```
+```
+npm install
+```
+
+### Running the Application
+
+For local development, the application uses a fake backend server that includes both authentication and API endpoints:
+
+```
+npm run dev
+```
+
+This will start both:
+- The React application on port 3001
+- A local development server on port 3002 (for authentication and API)
+
+### Authentication
+
+In development mode, the application uses a local authentication server. You can log in with any username and password.
+
+In production, the application uses AWS Cognito for authentication. The authentication flow includes:
+
+1. User login via Cognito
+2. JWT token storage and management
+3. Protected routes that require authentication
+
+### Environment Variables
+
+Create a `.env` file with the following variables for production:
+
+```
+REACT_APP_API_BASE_URL=https://your-api-domain.com
+REACT_APP_COGNITO_USER_POOL_ID=your-cognito-user-pool-id
+REACT_APP_COGNITO_CLIENT_ID=your-cognito-client-id
+REACT_APP_AWS_REGION=your-aws-region
+```
+
+## Deployment
+
+This application is deployed to Cloudflare Pages. Use the Makefile to handle deployment:
+
+```
+make deploy-preview  # Deploy to preview environment
+make deploy-prod     # Deploy to production environment
+```
+
+## Server Communication
+
+The API service for the application includes endpoints for:
+- Managing dogs (CRUD operations)
+- Uploading dog photos
+- Detecting dog breeds from photos
+
+In development mode, all API requests go to the local development server on port 3002.
+In production, requests go to the real API defined by REACT_APP_API_BASE_URL.
 
 ## Building for Production
 
@@ -39,43 +86,6 @@ make build
 ```
 
 This will create a production build in the `build` directory.
-
-## Deploying to Cloudflare Pages
-
-### Initial Setup
-
-1. Login to Cloudflare:
-   ```
-   make login
-   ```
-
-2. Create a new Cloudflare Pages project:
-   ```
-   make create-project
-   ```
-
-3. Set the API URL for development and production environments:
-   ```
-   make set-env-dev API_URL=https://dev-api.example.com
-   make set-env-prod API_URL=https://api.example.com
-   ```
-
-### Deployment
-
-To deploy to development environment:
-```
-make deploy
-```
-
-To deploy to production:
-```
-make deploy-prod
-```
-
-You can override the project name and API URL:
-```
-make deploy-prod PROJECT_NAME=my-project API_URL=https://my-api.example.com
-```
 
 ## SPA Routing
 

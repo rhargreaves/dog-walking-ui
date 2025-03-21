@@ -1,14 +1,41 @@
 import axios from 'axios';
 import { Dog } from '../types';
 
-// Set the base URL from environment variable or use default
-const baseURL = process.env.REACT_APP_API_BASE_URL || 'https://api.example.com';
+// Production API URL (from environment variable or default)
+const prodBaseURL = process.env.REACT_APP_API_BASE_URL || 'https://api.example.com';
+
+// Local development API & auth URLs
+const localBaseURL = 'http://localhost:3002/api';
+const localAuthURL = 'http://localhost:3002/auth';
+
+// Choose the appropriate base URL based on environment
+const baseURL = process.env.NODE_ENV === 'development' ? localBaseURL : prodBaseURL;
 
 const api = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+// Add an interceptor to attach the auth token to requests
+api.interceptors.request.use(async (config) => {
+  try {
+    if (process.env.NODE_ENV === 'development') {
+      // Get token from localStorage in development mode
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } else {
+      // In production, we'll use fetchAuthSession from Amplify
+      // This will be handled by the AuthContext
+      // We don't need to do anything here as the token will be obtained through getAuthToken()
+    }
+  } catch (error) {
+    console.error('Error adding auth token to request:', error);
+  }
+  return config;
 });
 
 export const dogService = {
@@ -57,6 +84,21 @@ export const dogService = {
   detectBreed: async (id: string): Promise<Dog> => {
     const response = await api.post(`/dogs/${id}/photo/detect-breed`);
     return response.data;
+  }
+};
+
+// Auth service for development mode
+export const authService = {
+  login: async (username: string, password: string): Promise<{ token: string }> => {
+    if (process.env.NODE_ENV === 'development') {
+      // In development mode, use the local auth service
+      const response = await axios.post(`${localAuthURL}/login`, {
+        username,
+        password
+      });
+      return response.data;
+    }
+    throw new Error('This method should only be used in development mode');
   }
 };
 
