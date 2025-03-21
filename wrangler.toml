@@ -1,18 +1,8 @@
 name = "dog-walking-ui"
-type = "webpack"
-account_id = ""
-workers_dev = true
-route = ""
-zone_id = ""
-
-[site]
-bucket = "./build"
-entry-point = "."
+pages_build_output_dir = "build"
 
 [env.production]
 name = "dog-walking-ui-prod"
-route = ""
 
-[env.staging]
-name = "dog-walking-ui-staging"
-route = ""
+[env.preview]
+name = "dog-walking-ui-uat"

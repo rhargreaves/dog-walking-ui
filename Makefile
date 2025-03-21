@@ -4,10 +4,16 @@
 PROJECT_NAME := dog-walking-ui
 BUILD_DIR := build
 WRANGLER := node_modules/.bin/wrangler
-API_URL ?= https://api.example.com
-COGNITO_USER_POOL_ID := your-cognito-user-pool-id
-COGNITO_CLIENT_ID := your-cognito-client-id
-AWS_REGION := your-aws-region
+
+ifneq (,$(wildcard .env))
+include .env
+export CLOUDFLARE_API_KEY:=$(CLOUDFLARE_API_KEY)
+export CLOUDFLARE_ACCOUNT_ID:=$(CLOUDFLARE_ACCOUNT_ID)
+export REACT_APP_API_BASE_URL:=$(REACT_APP_API_BASE_URL)
+export REACT_APP_COGNITO_USER_POOL_ID:=$(COGNITO_USER_POOL_ID)
+export REACT_APP_COGNITO_CLIENT_ID:=$(COGNITO_CLIENT_ID)
+export REACT_APP_AWS_REGION:=$(AWS_REGION)
+endif
 
 ## Help command
 help:
@@ -59,49 +65,16 @@ build:
 	npm run build
 .PHONY: build
 
-## Login to Cloudflare
-login:
-	$(WRANGLER) login
-.PHONY: login
-
 ## Create Cloudflare Pages project
 create-project: login
 	$(WRANGLER) pages project create $(PROJECT_NAME) --production-branch=main
 .PHONY: create-project
 
-## Set environment variables for development
-set-env-dev: login
-	$(WRANGLER) pages project set-env $(PROJECT_NAME) \
-	--binding REACT_APP_API_BASE_URL="$(API_URL)" \
-	--binding REACT_APP_COGNITO_USER_POOL_ID="$(COGNITO_USER_POOL_ID)" \
-	--binding REACT_APP_COGNITO_CLIENT_ID="$(COGNITO_CLIENT_ID)" \
-	--binding REACT_APP_AWS_REGION="$(AWS_REGION)" \
-	--preview
-.PHONY: set-env-dev
-
-## Set environment variables for production
-set-env-prod: login
-	$(WRANGLER) pages project set-env $(PROJECT_NAME) \
-	--binding REACT_APP_API_BASE_URL="$(API_URL)" \
-	--binding REACT_APP_COGNITO_USER_POOL_ID="$(COGNITO_USER_POOL_ID)" \
-	--binding REACT_APP_COGNITO_CLIENT_ID="$(COGNITO_CLIENT_ID)" \
-	--binding REACT_APP_AWS_REGION="$(AWS_REGION)" \
-	--production
-.PHONY: set-env-prod
-
-## Deploy to Cloudflare Pages (development)
+## Deploy to Cloudflare Pages
 deploy: build
-	$(WRANGLER) pages publish $(BUILD_DIR) \
-		--project-name=$(PROJECT_NAME)
+	$(WRANGLER) pages deploy $(BUILD_DIR) --project-name=$(PROJECT_NAME) --commit-dirty=true
 .PHONY: deploy
 
-## Deploy to Cloudflare Pages (production)
-deploy-prod: build
-	$(WRANGLER) pages publish $(BUILD_DIR) \
-		--project-name=$(PROJECT_NAME) \
-		--branch=main \
-		--commit-dirty=true
-.PHONY: deploy-prod
 
 ## Clean build artifacts
 clean:
