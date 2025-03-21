@@ -2,6 +2,9 @@
 
 Frontend React SPA for the [Dog Walking Service](https://github.com/rhargreaves/dog-walking).
 
+> [!CAUTION]
+> The code here has almost entirely been produced by AI :sparkles: since I am not a natural front-end developer. It is a quick-and-dirty UI which I am using to drive out new features for the underlying API. Do not judge me on it! :smile:
+
 ## Features
 
 - View all registered dogs
