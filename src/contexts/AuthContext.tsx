@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import { authService } from '../services/api';
 
@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const getAuthToken = async (): Promise<string | null> => {
+  const getAuthToken = useCallback(async (): Promise<string | null> => {
     if (authToken) {
       return authToken;
     }
@@ -128,7 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       return null;
     }
-  };
+  }, [authToken, isLocalDevelopment]);
 
   // Register the auth token getter function globally
   useEffect(() => {
