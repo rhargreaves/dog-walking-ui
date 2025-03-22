@@ -130,6 +130,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Register the auth token getter function globally
+  useEffect(() => {
+    authService.registerTokenGetter(getAuthToken);
+  }, [getAuthToken]);
+
   return (
     <AuthContext.Provider
       value={{

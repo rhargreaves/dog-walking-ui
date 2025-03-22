@@ -1,6 +1,13 @@
 import axios from 'axios';
 import { Dog } from '../types';
 
+// Extend Window interface to include our global auth token getter
+declare global {
+  interface Window {
+    getAuthToken?: () => Promise<string | null>;
+  }
+}
+
 // Production API URL (from environment variable or default)
 const prodBaseURL = process.env.REACT_APP_API_BASE_URL || 'https://api.example.com';
 
@@ -28,9 +35,15 @@ api.interceptors.request.use(async (config) => {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } else {
-      // In production, we'll use fetchAuthSession from Amplify
-      // This will be handled by the AuthContext
-      // We don't need to do anything here as the token will be obtained through getAuthToken()
+      // In production, get the token from the AuthContext's getAuthToken
+      // Since we can't directly access the context here, we'll use a globally accessible
+      // token getter function that will be set by AuthContext
+      if (window.getAuthToken) {
+        const token = await window.getAuthToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
     }
   } catch (error) {
     console.error('Error adding auth token to request:', error);
@@ -99,6 +112,11 @@ export const authService = {
       return response.data;
     }
     throw new Error('This method should only be used in development mode');
+  },
+
+  // Method to register the global auth token getter
+  registerTokenGetter: (getter: () => Promise<string | null>) => {
+    window.getAuthToken = getter;
   }
 };
 
