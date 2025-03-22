@@ -1,19 +1,18 @@
 .DEFAULT_GOAL := help
-
-# Variables
 PROJECT_NAME := dog-walking-ui
 BUILD_DIR := build
 WRANGLER := node_modules/.bin/wrangler
 
 ifneq (,$(wildcard .env))
 include .env
+endif
+
 export CLOUDFLARE_API_TOKEN:=$(CLOUDFLARE_API_TOKEN)
 export CLOUDFLARE_ACCOUNT_ID:=$(CLOUDFLARE_ACCOUNT_ID)
 export REACT_APP_API_BASE_URL:=$(API_URL)
 export REACT_APP_COGNITO_USER_POOL_ID:=$(COGNITO_USER_POOL_ID)
 export REACT_APP_COGNITO_CLIENT_ID:=$(COGNITO_CLIENT_ID)
 export REACT_APP_AWS_REGION:=$(AWS_REGION)
-endif
 
 ## Help command
 help:
