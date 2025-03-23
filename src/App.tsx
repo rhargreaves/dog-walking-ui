@@ -2,6 +2,7 @@ import React from 'react';
 import { ChakraProvider } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import DogList from './components/DogList';
 import DogDetails from './components/DogDetails';
 import DogForm from './components/DogForm';
@@ -31,6 +32,7 @@ function App() {
               <Route path="/dogs/:id/edit" element={<DogForm />} />
             </Route>
           </Routes>
+          <Footer />
         </Router>
       </AuthProvider>
     </ChakraProvider>
