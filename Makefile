@@ -8,6 +8,7 @@ ifneq (,$(wildcard .env))
 include .env
 endif
 
+export NODE_ENV:=$(NODE_ENV)
 export CLOUDFLARE_API_TOKEN:=$(CLOUDFLARE_API_TOKEN)
 export CLOUDFLARE_ACCOUNT_ID:=$(CLOUDFLARE_ACCOUNT_ID)
 export REACT_APP_API_BASE_URL:=$(API_URL)
