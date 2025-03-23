@@ -252,7 +252,7 @@ const DogDetails: React.FC = () => {
             {dog.name}
           </Heading>
           <Text fontSize="xl" mb={4} color="gray.600">
-            Breed: {dog.breed || 'Unknown'}
+            {dog.breed || 'Unknown'}
           </Text>
 
           <Stack mt={8} direction="row" spacing={4}>
