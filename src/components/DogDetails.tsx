@@ -20,7 +20,6 @@ const DogDetails: React.FC = () => {
   const [dog, setDog] = useState<Dog | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [detecting, setDetecting] = useState(false);
   const [breedConfidence, setBreedConfidence] = useState<number | null>(null);
@@ -61,28 +60,29 @@ const DogDetails: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setPhotoFile(e.target.files[0]);
+      const file = e.target.files[0];
+
+      // Validate file type is JPEG
+      if (file.type !== 'image/jpeg') {
+        alert('Only JPEG images are supported. Please select a JPEG file.');
+        return;
+      }
+
+      // Upload the file immediately
+      handleUploadFile(file);
     }
   };
 
-  const handleUploadPhoto = async () => {
-    if (!id || !photoFile) return;
-
-    // Validate file type is JPEG
-    if (photoFile.type !== 'image/jpeg') {
-      alert('Only JPEG images are supported. Please select a JPEG file.');
-      return;
-    }
+  const handleUploadFile = async (file: File) => {
+    if (!id) return;
 
     try {
       setUploading(true);
-      await dogService.uploadDogPhoto(id, photoFile);
+      await dogService.uploadDogPhoto(id, file);
 
       // Refresh dog data to show updated photo
       const updatedDog = await dogService.getDog(id);
       setDog(updatedDog);
-
-      setPhotoFile(null);
     } catch (err) {
       console.error('Error uploading photo:', err);
     } finally {
@@ -106,7 +106,11 @@ const DogDetails: React.FC = () => {
       setBreedConfidence(response.confidence);
     } catch (err: any) {
       console.error('Error detecting breed:', err);
-      setBreedError(err?.response?.data?.message || 'Failed to detect breed. Please try again.');
+      // Extract error as a string
+      const errorMessage = typeof err?.response?.data?.error === 'string'
+        ? err.response.data.error
+        : 'Failed to detect breed. Please try again.';
+      setBreedError(errorMessage);
     } finally {
       setDetecting(false);
     }
@@ -168,23 +172,14 @@ const DogDetails: React.FC = () => {
                 id="photo-upload"
                 onChange={handleFileChange}
                 style={{ display: 'none' }}
+                disabled={uploading}
               />
               <label htmlFor="photo-upload">
-                <Button as="span" colorScheme="blue" width="100%">
-                  Select Photo
+                <Button as="span" colorScheme="blue" width="100%" isDisabled={uploading}>
+                  {uploading ? 'Uploading...' : 'Upload Photo'}
                 </Button>
               </label>
             </Box>
-
-            {photoFile && (
-              <Button
-                colorScheme="green"
-                onClick={handleUploadPhoto}
-                disabled={uploading}
-              >
-                {uploading ? 'Uploading...' : 'Upload Photo'}
-              </Button>
-            )}
 
             {dog.photoUrl && (
               <Button
