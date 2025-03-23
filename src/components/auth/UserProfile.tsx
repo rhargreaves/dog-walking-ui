@@ -13,7 +13,7 @@ const UserProfile: React.FC = () => {
     <Flex align="center">
       <Box mr={4} textAlign="right">
         <Text fontSize="sm" fontWeight="medium">
-          {user?.username || 'User'}
+          {user?.email || user?.username || 'User'}
         </Text>
       </Box>
       <Button

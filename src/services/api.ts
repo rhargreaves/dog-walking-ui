@@ -102,7 +102,7 @@ export const dogService = {
 
 // Auth service for development mode
 export const authService = {
-  login: async (username: string, password: string): Promise<{ token: string }> => {
+  login: async (username: string, password: string): Promise<{ token: string, user: { username: string, email: string } }> => {
     if (process.env.NODE_ENV === 'development') {
       // In development mode, use the local auth service
       const response = await axios.post(`${localAuthURL}/login`, {

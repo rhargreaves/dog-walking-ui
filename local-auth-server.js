@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const app = express();
 const PORT = 3002;
-const SECRET_KEY = '1234567890'; // The secret key you mentioned
+const SECRET_KEY = '1234567890';
 
 // Sample database for development
 let dogs = [
@@ -71,9 +71,13 @@ app.post('/auth/login', (req, res) => {
     return res.status(400).json({ error: 'Username is required' });
   }
 
+  // Generate an email from the username for development
+  const email = `${username}@example.com`;
+
   // Create a payload for the token
   const payload = {
     username,
+    email,
     roles: ['user'],
     exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) // 24 hours
   };
@@ -82,7 +86,7 @@ app.post('/auth/login', (req, res) => {
   const token = jwt.sign(payload, SECRET_KEY);
 
   // Return the token
-  res.json({ token, user: { username } });
+  res.json({ token, user: { username, email } });
 });
 
 // =================== API Endpoints ===================

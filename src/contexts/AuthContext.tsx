@@ -35,7 +35,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const token = localStorage.getItem('auth_token');
           if (token) {
             setAuthToken(token);
-            setUser({ username: localStorage.getItem('username') || 'user' });
+            setUser({
+              username: localStorage.getItem('username') || 'user',
+              email: localStorage.getItem('email')
+            });
             setIsAuthenticated(true);
           }
         } else {
@@ -66,11 +69,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (isLocalDevelopment) {
         // For development, use local auth service
         const response = await authService.login(username, password);
-        const { token } = response;
+        const { token, user } = response;
         localStorage.setItem('auth_token', token);
         localStorage.setItem('username', username);
+        localStorage.setItem('email', user.email);
         setAuthToken(token);
-        setUser({ username });
+        setUser(user);
         setIsAuthenticated(true);
         return response;
       } else {
@@ -101,6 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // For development
         localStorage.removeItem('auth_token');
         localStorage.removeItem('username');
+        localStorage.removeItem('email');
       } else {
         // Use Cognito in production
         await signOut();
