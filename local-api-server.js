@@ -13,33 +13,42 @@ let dogs = [
     id: '1',
     name: 'Rex',
     breed: 'German Shepherd',
-    age: 3,
-    size: 'Large',
-    description: 'Friendly and energetic',
-    image: 'https://images.dog.ceo/breeds/germanshepherd/n02106662_6694.jpg'
+    photoUrl: 'https://images.dog.ceo/breeds/germanshepherd/n02106662_6694.jpg',
+    photoHash: 'hash1'
   },
   {
     id: '2',
     name: 'Buddy',
     breed: 'Golden Retriever',
-    age: 2,
-    size: 'Medium',
-    description: 'Loves to play fetch',
-    image: 'https://images.dog.ceo/breeds/retriever-golden/n02099601_3697.jpg'
+    photoUrl: 'https://images.dog.ceo/breeds/retriever-golden/n02099601_3697.jpg',
+    photoHash: 'hash2'
   },
   {
     id: '3',
     name: 'Max',
     breed: 'Beagle',
-    age: 4,
-    size: 'Small',
-    description: 'Friendly and good with kids',
-    image: 'https://images.dog.ceo/breeds/beagle/n02088364_12124.jpg'
+    photoUrl: 'https://images.dog.ceo/breeds/beagle/n02088364_12124.jpg',
+    photoHash: 'hash3'
   }
 ];
 
 app.use(cors());
 app.use(bodyParser.json());
+// Add raw body parser for handling image uploads
+app.use('/api/dogs/:id/photo', (req, res, next) => {
+  if (req.headers['content-type'] === 'image/jpeg') {
+    let data = Buffer.from('');
+    req.on('data', chunk => {
+      data = Buffer.concat([data, chunk]);
+    });
+    req.on('end', () => {
+      req.rawBody = data;
+      next();
+    });
+  } else {
+    next();
+  }
+});
 
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
@@ -107,10 +116,16 @@ app.get('/api/dogs/:id', verifyToken, (req, res) => {
 
 // Create a new dog
 app.post('/api/dogs', verifyToken, (req, res) => {
+  // Extract only the properties defined in the API spec
+  const { name, breed } = req.body;
+
   const newDog = {
     id: (dogs.length + 1).toString(),
-    ...req.body
+    name,
+    breed,
+    // photoUrl and photoHash will be added when a photo is uploaded
   };
+
   dogs.push(newDog);
   res.status(201).json(newDog);
 });
@@ -122,13 +137,16 @@ app.put('/api/dogs/:id', verifyToken, (req, res) => {
     return res.status(404).json({ error: 'Dog not found' });
   }
 
-  const updatedDog = {
-    ...dogs[index],
-    ...req.body
-  };
+  // Extract only the properties defined in the API spec
+  const { name, breed } = req.body;
 
-  dogs[index] = updatedDog;
-  res.json(updatedDog);
+  // Update only the properties that are allowed to be updated
+  if (name !== undefined) dogs[index].name = name;
+  if (breed !== undefined) dogs[index].breed = breed;
+
+  // Don't allow direct updates to photoUrl or photoHash through this endpoint
+
+  res.json(dogs[index]);
 });
 
 // Delete a dog
@@ -149,8 +167,21 @@ app.put('/api/dogs/:id/photo', verifyToken, (req, res) => {
     return res.status(404).json({ error: 'Dog not found' });
   }
 
+  // Check content type
+  if (req.headers['content-type'] !== 'image/jpeg') {
+    return res.status(400).json({ error: 'Content-Type must be image/jpeg' });
+  }
+
+  // Check if we received the binary data
+  if (!req.rawBody) {
+    return res.status(400).json({ error: 'No image data received' });
+  }
+
   // In development, just pretend we uploaded a photo
-  dogs[index].image = `https://images.dog.ceo/breeds/retriever-golden/n02099601_${Math.floor(Math.random() * 9999)}.jpg`;
+  const randomNum = Math.floor(Math.random() * 9999);
+  dogs[index].photoUrl = `https://images.dog.ceo/breeds/retriever-golden/n02099601_${randomNum}.jpg`;
+  dogs[index].photoHash = `hash_${randomNum}`; // Add a random photoHash
+
   res.json(dogs[index]);
 });
 
@@ -161,11 +192,28 @@ app.post('/api/dogs/:id/photo/detect-breed', verifyToken, (req, res) => {
     return res.status(404).json({ error: 'Dog not found' });
   }
 
-  // In development, just return a random breed
-  const breeds = ['Golden Retriever', 'Labrador', 'German Shepherd', 'Beagle', 'Poodle', 'Bulldog'];
-  dogs[index].breed = breeds[Math.floor(Math.random() * breeds.length)];
+  // Check if the dog has a photo
+  if (!dogs[index].photoUrl) {
+    return res.status(400).json({
+      code: 400,
+      message: 'No photo available for breed detection'
+    });
+  }
 
-  res.json(dogs[index]);
+  // In development, just return a random breed with confidence score
+  const breeds = ['Golden Retriever', 'Labrador', 'German Shepherd', 'Beagle', 'Poodle', 'Bulldog'];
+  const randomBreed = breeds[Math.floor(Math.random() * breeds.length)];
+  const confidence = Math.round((0.7 + Math.random() * 0.3) * 100) / 100; // Random confidence between 0.7 and 1.0
+
+  // Update the dog's breed
+  dogs[index].breed = randomBreed;
+
+  // Return the detected breed information
+  res.json({
+    id: dogs[index].id,
+    breed: randomBreed,
+    confidence: confidence
+  });
 });
 
 // Start the server

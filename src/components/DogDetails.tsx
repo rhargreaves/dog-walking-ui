@@ -66,6 +66,12 @@ const DogDetails: React.FC = () => {
   const handleUploadPhoto = async () => {
     if (!id || !photoFile) return;
 
+    // Validate file type is JPEG
+    if (photoFile.type !== 'image/jpeg') {
+      alert('Only JPEG images are supported. Please select a JPEG file.');
+      return;
+    }
+
     try {
       setUploading(true);
       await dogService.uploadDogPhoto(id, photoFile);
@@ -148,7 +154,7 @@ const DogDetails: React.FC = () => {
             <Box>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg"
                 id="photo-upload"
                 onChange={handleFileChange}
                 style={{ display: 'none' }}

@@ -83,12 +83,13 @@ export const dogService = {
 
   // Upload a dog photo
   uploadDogPhoto: async (id: string, file: File): Promise<void> => {
-    const formData = new FormData();
-    formData.append('file', file);
+    // Read the file as an ArrayBuffer
+    const arrayBuffer = await file.arrayBuffer();
 
-    await api.put(`/dogs/${id}/photo`, formData, {
+    // Send the raw file data with Content-Type: image/jpeg
+    await api.put(`/dogs/${id}/photo`, arrayBuffer, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'image/jpeg',
       },
     });
   },
