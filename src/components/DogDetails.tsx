@@ -23,6 +23,8 @@ const DogDetails: React.FC = () => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [detecting, setDetecting] = useState(false);
+  const [breedConfidence, setBreedConfidence] = useState<number | null>(null);
+  const [breedError, setBreedError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDog = async () => {
@@ -93,10 +95,18 @@ const DogDetails: React.FC = () => {
 
     try {
       setDetecting(true);
-      const updatedDog = await dogService.detectBreed(id);
-      setDog(updatedDog);
-    } catch (err) {
+      setBreedError(null);
+      setBreedConfidence(null);
+
+      const response = await dogService.detectBreed(id);
+      setDog({
+        ...dog as Dog,
+        breed: response.breed
+      });
+      setBreedConfidence(response.confidence);
+    } catch (err: any) {
       console.error('Error detecting breed:', err);
+      setBreedError(err?.response?.data?.message || 'Failed to detect breed. Please try again.');
     } finally {
       setDetecting(false);
     }
@@ -184,6 +194,20 @@ const DogDetails: React.FC = () => {
               >
                 {detecting ? 'Detecting...' : 'Detect Breed'}
               </Button>
+            )}
+
+            {breedError && (
+              <Box bg="red.100" p={3} borderRadius="md" color="red.800">
+                {breedError}
+              </Box>
+            )}
+
+            {breedConfidence !== null && (
+              <Box bg="blue.50" p={3} borderRadius="md">
+                <Text>
+                  Breed detected with <strong>{Math.round(breedConfidence * 100)}%</strong> confidence
+                </Text>
+              </Box>
             )}
           </Stack>
         </Box>

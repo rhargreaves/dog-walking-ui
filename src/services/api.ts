@@ -95,7 +95,7 @@ export const dogService = {
   },
 
   // Detect dog breed from photo
-  detectBreed: async (id: string): Promise<Dog> => {
+  detectBreed: async (id: string): Promise<{ id: string, breed: string, confidence: number }> => {
     const response = await api.post(`/dogs/${id}/photo/detect-breed`);
     return response.data;
   }
