@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -73,7 +73,7 @@ const DogDetails: React.FC = () => {
     }
   };
 
-  const handleUploadFile = async (file: File) => {
+  const handleUploadFile = useCallback(async (file: File) => {
     if (!id) return;
 
     try {
@@ -88,7 +88,7 @@ const DogDetails: React.FC = () => {
     } finally {
       setUploading(false);
     }
-  };
+  }, [id]);
 
   const handleDetectBreed = async () => {
     if (!id) return;
@@ -115,6 +115,43 @@ const DogDetails: React.FC = () => {
       setDetecting(false);
     }
   };
+
+  // Handler for processing and uploading pasted images
+  const handlePaste = useCallback(async (event: ClipboardEvent) => {
+    if (!id || uploading) return;
+
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') === 0) {
+        // Get the image as a file
+        const file = items[i].getAsFile();
+        if (!file) continue;
+
+        // Validate it's a JPEG
+        if (file.type !== 'image/jpeg') {
+          alert('Only JPEG images are supported. The pasted image must be a JPEG.');
+          return;
+        }
+
+        // Stop the default paste behavior
+        event.preventDefault();
+
+        // Upload the file
+        await handleUploadFile(file);
+        break;
+      }
+    }
+  }, [id, uploading, handleUploadFile]);
+
+  // Add and remove the paste event listener
+  useEffect(() => {
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, [handlePaste]);
 
   if (loading) {
     return (
@@ -179,6 +216,9 @@ const DogDetails: React.FC = () => {
                   {uploading ? 'Uploading...' : 'Upload Photo'}
                 </Button>
               </label>
+              <Text mt={2} fontSize="sm" color="gray.600" textAlign="center">
+                You can also paste an image directly (Ctrl+V/Cmd+V)
+              </Text>
             </Box>
 
             {dog.photoUrl && (

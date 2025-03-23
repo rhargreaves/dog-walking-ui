@@ -39,7 +39,7 @@ const DogCard: React.FC<DogCardProps> = ({ dog }) => {
       <Box p={4}>
         <Heading size="md" mb={2}>{dog.name}</Heading>
         {dog.breed && (
-          <Text color="gray.600">Breed: {dog.breed}</Text>
+          <Text color="gray.600">{dog.breed}</Text>
         )}
       </Box>
     </Box>
