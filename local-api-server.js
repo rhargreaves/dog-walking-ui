@@ -203,7 +203,7 @@ app.post('/api/dogs/:id/photo/detect-breed', verifyToken, (req, res) => {
   // In development, just return a random breed with confidence score
   const breeds = ['Golden Retriever', 'Labrador', 'German Shepherd', 'Beagle', 'Poodle', 'Bulldog'];
   const randomBreed = breeds[Math.floor(Math.random() * breeds.length)];
-  const confidence = Math.round((0.7 + Math.random() * 0.3) * 100) / 100; // Random confidence between 0.7 and 1.0
+  const confidence = Math.round((0.7 + Math.random() * 0.3) * 100); // Random confidence between 70 and 100
 
   // Update the dog's breed
   dogs[index].breed = randomBreed;

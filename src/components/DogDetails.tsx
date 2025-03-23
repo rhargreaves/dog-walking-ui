@@ -200,7 +200,7 @@ const DogDetails: React.FC = () => {
             {breedConfidence !== null && (
               <Box bg="blue.50" p={3} borderRadius="md">
                 <Text>
-                  Breed detected with <strong>{Math.round(breedConfidence * 100)}%</strong> confidence
+                  Breed detected with <strong>{Math.round(breedConfidence)}%</strong> confidence
                 </Text>
               </Box>
             )}
