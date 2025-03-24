@@ -55,7 +55,9 @@ const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ error: 'No token provided' });
+    return res.status(401).json({
+      error: { code: 401, message: 'No token provided' }
+    });
   }
 
   const token = authHeader.split(' ')[1];
@@ -65,7 +67,9 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json({
+      error: { code: 401, message: 'Invalid token' }
+    });
   }
 };
 
@@ -77,7 +81,9 @@ app.post('/auth/login', (req, res) => {
 
   // In development, any username/password is accepted
   if (!username) {
-    return res.status(400).json({ error: 'Username is required' });
+    return res.status(400).json({
+      error: { code: 400, message: 'Username is required' }
+    });
   }
 
   // Generate an email from the username for development
@@ -102,14 +108,26 @@ app.post('/auth/login', (req, res) => {
 
 // Get all dogs
 app.get('/api/dogs', verifyToken, (req, res) => {
-  res.json(dogs);
+  // Extract nextToken from query parameters (for pagination)
+  const { nextToken } = req.query;
+
+  // In a real implementation, we would use the nextToken to fetch the next page
+  // For this mock server, we'll just return all dogs for any request
+
+  // Return in the format of DogList with dogs array and nextToken
+  res.json({
+    dogs: dogs,
+    nextToken: null // For pagination in the future
+  });
 });
 
 // Get dog by ID
 app.get('/api/dogs/:id', verifyToken, (req, res) => {
   const dog = dogs.find(d => d.id === req.params.id);
   if (!dog) {
-    return res.status(404).json({ error: 'Dog not found' });
+    return res.status(404).json({
+      error: { code: 404, message: 'Dog not found' }
+    });
   }
   res.json(dog);
 });
@@ -134,7 +152,9 @@ app.post('/api/dogs', verifyToken, (req, res) => {
 app.put('/api/dogs/:id', verifyToken, (req, res) => {
   const index = dogs.findIndex(d => d.id === req.params.id);
   if (index === -1) {
-    return res.status(404).json({ error: 'Dog not found' });
+    return res.status(404).json({
+      error: { code: 404, message: 'Dog not found' }
+    });
   }
 
   // Extract only the properties defined in the API spec
@@ -153,7 +173,9 @@ app.put('/api/dogs/:id', verifyToken, (req, res) => {
 app.delete('/api/dogs/:id', verifyToken, (req, res) => {
   const index = dogs.findIndex(d => d.id === req.params.id);
   if (index === -1) {
-    return res.status(404).json({ error: 'Dog not found' });
+    return res.status(404).json({
+      error: { code: 404, message: 'Dog not found' }
+    });
   }
 
   dogs = dogs.filter(d => d.id !== req.params.id);
@@ -164,17 +186,23 @@ app.delete('/api/dogs/:id', verifyToken, (req, res) => {
 app.put('/api/dogs/:id/photo', verifyToken, (req, res) => {
   const index = dogs.findIndex(d => d.id === req.params.id);
   if (index === -1) {
-    return res.status(404).json({ error: 'Dog not found' });
+    return res.status(404).json({
+      error: { code: 404, message: 'Dog not found' }
+    });
   }
 
   // Check content type
   if (req.headers['content-type'] !== 'image/jpeg') {
-    return res.status(400).json({ error: 'Content-Type must be image/jpeg' });
+    return res.status(400).json({
+      error: { code: 400, message: 'Content-Type must be image/jpeg' }
+    });
   }
 
   // Check if we received the binary data
   if (!req.rawBody) {
-    return res.status(400).json({ error: 'No image data received' });
+    return res.status(400).json({
+      error: { code: 400, message: 'No image data received' }
+    });
   }
 
   // In development, just pretend we uploaded a photo
@@ -189,14 +217,15 @@ app.put('/api/dogs/:id/photo', verifyToken, (req, res) => {
 app.post('/api/dogs/:id/photo/detect-breed', verifyToken, (req, res) => {
   const index = dogs.findIndex(d => d.id === req.params.id);
   if (index === -1) {
-    return res.status(404).json({ error: 'Dog not found' });
+    return res.status(404).json({
+      error: { code: 404, message: 'Dog not found' }
+    });
   }
 
   // Check if the dog has a photo
   if (!dogs[index].photoUrl) {
     return res.status(400).json({
-      code: 400,
-      message: 'No photo available for breed detection'
+      error: { code: 400, message: 'No photo available for breed detection' }
     });
   }
 
@@ -214,6 +243,12 @@ app.post('/api/dogs/:id/photo/detect-breed', verifyToken, (req, res) => {
     breed: randomBreed,
     confidence: confidence
   });
+});
+
+// Health check endpoint
+app.get('/api/ping', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.send('OK');
 });
 
 // Start the server

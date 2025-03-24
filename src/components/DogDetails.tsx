@@ -34,9 +34,9 @@ const DogDetails: React.FC = () => {
         const fetchedDog = await dogService.getDog(id);
         setDog(fetchedDog);
         setError(null);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching dog:', err);
-        setError('Failed to load dog details. Please try again later.');
+        setError(err.message || 'Failed to load dog details. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -53,8 +53,9 @@ const DogDetails: React.FC = () => {
     try {
       await dogService.deleteDog(id);
       navigate('/');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error deleting dog:', err);
+      alert(`Error deleting dog: ${err.message}`);
     }
   };
 
@@ -83,8 +84,9 @@ const DogDetails: React.FC = () => {
       // Refresh dog data to show updated photo
       const updatedDog = await dogService.getDog(id);
       setDog(updatedDog);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error uploading photo:', err);
+      alert(`Error uploading photo: ${err.message}`);
     } finally {
       setUploading(false);
     }
@@ -106,10 +108,8 @@ const DogDetails: React.FC = () => {
       setBreedConfidence(response.confidence);
     } catch (err: any) {
       console.error('Error detecting breed:', err);
-      // Extract error as a string
-      const errorMessage = typeof err?.response?.data?.error === 'string'
-        ? err.response.data.error
-        : 'Failed to detect breed. Please try again.';
+      // Handle the new error format
+      const errorMessage = err.message || 'Failed to detect breed. Please try again.';
       setBreedError(errorMessage);
     } finally {
       setDetecting(false);

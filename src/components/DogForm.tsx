@@ -34,9 +34,9 @@ const DogForm: React.FC = () => {
         const fetchedDog = await dogService.getDog(id);
         setDog(fetchedDog);
         setError(null);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching dog:', err);
-        setError('Failed to load dog details. Please try again later.');
+        setError(err.message || 'Failed to load dog details. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -68,9 +68,9 @@ const DogForm: React.FC = () => {
       }
 
       navigate('/');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving dog:', err);
-      setError('Failed to save dog. Please try again later.');
+      setError(err.message || 'Failed to save dog. Please try again later.');
     } finally {
       setSaving(false);
     }

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { Dog } from '../types';
+import axios, { AxiosError } from 'axios';
+import { Dog, DogList, ApiError } from '../types';
 
 // Extend Window interface to include our global auth token getter
 declare global {
@@ -8,10 +8,7 @@ declare global {
   }
 }
 
-// Production API URL (from environment variable or default)
-const prodBaseURL = process.env.REACT_APP_API_BASE_URL || 'https://api.example.com';
-
-// Local development API & auth URLs
+const prodBaseURL = process.env.REACT_APP_API_BASE_URL;
 const localBaseURL = 'http://localhost:3002/api';
 const localAuthURL = 'http://localhost:3002/auth';
 
@@ -51,68 +48,148 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+// Helper function to extract error details
+export const extractErrorDetails = (error: any): ApiError => {
+  if (axios.isAxiosError(error)) {
+    const axiosError = error as AxiosError<any>;
+
+    // Check if the API returned a structured error response with nested error object
+    if (axiosError.response?.data && typeof axiosError.response.data === 'object') {
+      // Check if it's the nested error format (ApiErrorResponse)
+      if ('error' in axiosError.response.data &&
+          typeof axiosError.response.data.error === 'object' &&
+          'code' in axiosError.response.data.error &&
+          'message' in axiosError.response.data.error) {
+        return axiosError.response.data.error as ApiError;
+      }
+
+      // Check if it's a direct ApiError format
+      if ('code' in axiosError.response.data &&
+          'message' in axiosError.response.data) {
+        return axiosError.response.data as ApiError;
+      }
+    }
+
+    // Fallback to generic error with status code
+    return {
+      code: axiosError.response?.status || 500,
+      message: axiosError.response?.statusText || 'An unknown error occurred'
+    };
+  }
+
+  // Generic error for non-axios errors
+  return {
+    code: 500,
+    message: error?.message || 'An unknown error occurred'
+  };
+};
+
 export const dogService = {
   // Get all dogs
-  getAllDogs: async (): Promise<Dog[]> => {
-    const response = await api.get('/dogs');
-    return response.data;
+  getAllDogs: async (nextToken?: string): Promise<{dogs: Dog[], nextToken?: string}> => {
+    try {
+      const params = nextToken ? { nextToken } : {};
+      const response = await api.get<DogList>('/dogs', { params });
+      return {
+        dogs: response.data.dogs,
+        nextToken: response.data.nextToken
+      };
+    } catch (error) {
+      console.error('Error fetching dogs:', error);
+      throw extractErrorDetails(error);
+    }
   },
 
   // Get a specific dog by ID
   getDog: async (id: string): Promise<Dog> => {
-    const response = await api.get(`/dogs/${id}`);
-    return response.data;
+    try {
+      const response = await api.get<Dog>(`/dogs/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching dog ${id}:`, error);
+      throw extractErrorDetails(error);
+    }
   },
 
   // Create a new dog
   createDog: async (dog: Omit<Dog, 'id'>): Promise<Dog> => {
-    const response = await api.post('/dogs', dog);
-    return response.data;
+    try {
+      const response = await api.post<Dog>('/dogs', dog);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating dog:', error);
+      throw extractErrorDetails(error);
+    }
   },
 
   // Update an existing dog
   updateDog: async (id: string, dog: Partial<Dog>): Promise<Dog> => {
-    const response = await api.put(`/dogs/${id}`, dog);
-    return response.data;
+    try {
+      const response = await api.put<Dog>(`/dogs/${id}`, dog);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating dog ${id}:`, error);
+      throw extractErrorDetails(error);
+    }
   },
 
   // Delete a dog
   deleteDog: async (id: string): Promise<void> => {
-    await api.delete(`/dogs/${id}`);
+    try {
+      await api.delete(`/dogs/${id}`);
+    } catch (error) {
+      console.error(`Error deleting dog ${id}:`, error);
+      throw extractErrorDetails(error);
+    }
   },
 
   // Upload a dog photo
   uploadDogPhoto: async (id: string, file: File): Promise<void> => {
-    // Read the file as an ArrayBuffer
-    const arrayBuffer = await file.arrayBuffer();
+    try {
+      // Read the file as an ArrayBuffer
+      const arrayBuffer = await file.arrayBuffer();
 
-    // Send the raw file data with Content-Type: image/jpeg
-    await api.put(`/dogs/${id}/photo`, arrayBuffer, {
-      headers: {
-        'Content-Type': 'image/jpeg',
-      },
-    });
+      // Send the raw file data with Content-Type: image/jpeg
+      await api.put(`/dogs/${id}/photo`, arrayBuffer, {
+        headers: {
+          'Content-Type': 'image/jpeg',
+        },
+      });
+    } catch (error) {
+      console.error(`Error uploading photo for dog ${id}:`, error);
+      throw extractErrorDetails(error);
+    }
   },
 
   // Detect dog breed from photo
   detectBreed: async (id: string): Promise<{ id: string, breed: string, confidence: number }> => {
-    const response = await api.post(`/dogs/${id}/photo/detect-breed`);
-    return response.data;
+    try {
+      const response = await api.post(`/dogs/${id}/photo/detect-breed`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error detecting breed for dog ${id}:`, error);
+      throw extractErrorDetails(error);
+    }
   }
 };
 
 // Auth service for development mode
 export const authService = {
   login: async (username: string, password: string): Promise<{ token: string, user: { username: string, email: string } }> => {
-    if (process.env.NODE_ENV === 'development') {
-      // In development mode, use the local auth service
-      const response = await axios.post(`${localAuthURL}/login`, {
-        username,
-        password
-      });
-      return response.data;
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        // In development mode, use the local auth service
+        const response = await axios.post(`${localAuthURL}/login`, {
+          username,
+          password
+        });
+        return response.data;
+      }
+      throw new Error('This method should only be used in development mode');
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw extractErrorDetails(error);
     }
-    throw new Error('This method should only be used in development mode');
   },
 
   // Method to register the global auth token getter
