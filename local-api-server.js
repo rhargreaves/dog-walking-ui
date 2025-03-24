@@ -29,6 +29,90 @@ let dogs = [
     breed: 'Beagle',
     photoUrl: 'https://images.dog.ceo/breeds/beagle/n02088364_12124.jpg',
     photoHash: 'hash3'
+  },
+  {
+    id: '4',
+    name: 'Luna',
+    breed: 'Labrador Retriever',
+    photoUrl: 'https://images.dog.ceo/breeds/retriever-labrador/n02099712_1622.jpg',
+    photoHash: 'hash4'
+  },
+  {
+    id: '5',
+    name: 'Bella',
+    breed: 'Poodle',
+    photoUrl: 'https://images.dog.ceo/breeds/poodle-standard/n02113799_2280.jpg',
+    photoHash: 'hash5'
+  },
+  {
+    id: '6',
+    name: 'Charlie',
+    breed: 'Bulldog',
+    photoUrl: 'https://images.dog.ceo/breeds/bulldog-english/jager-1.jpg',
+    photoHash: 'hash6'
+  },
+  {
+    id: '7',
+    name: 'Lucy',
+    breed: 'Siberian Husky',
+    photoUrl: 'https://images.dog.ceo/breeds/husky/n02110185_10047.jpg',
+    photoHash: 'hash7'
+  },
+  {
+    id: '8',
+    name: 'Cooper',
+    breed: 'Boxer',
+    photoUrl: 'https://images.dog.ceo/breeds/boxer/n02108089_5128.jpg',
+    photoHash: 'hash8'
+  },
+  {
+    id: '9',
+    name: 'Daisy',
+    breed: 'Dachshund',
+    photoUrl: 'https://images.dog.ceo/breeds/dachshund/dachshund-6.jpg',
+    photoHash: 'hash9'
+  },
+  {
+    id: '10',
+    name: 'Rocky',
+    breed: 'Rottweiler',
+    photoUrl: 'https://images.dog.ceo/breeds/rottweiler/n02106550_9500.jpg',
+    photoHash: 'hash10'
+  },
+  {
+    id: '11',
+    name: 'Sadie',
+    breed: 'Shih Tzu',
+    photoUrl: 'https://images.dog.ceo/breeds/shihtzu/n02086240_5044.jpg',
+    photoHash: 'hash11'
+  },
+  {
+    id: '12',
+    name: 'Duke',
+    breed: 'Doberman',
+    photoUrl: 'https://images.dog.ceo/breeds/doberman/n02107142_11303.jpg',
+    photoHash: 'hash12'
+  },
+  {
+    id: '13',
+    name: 'Molly',
+    breed: 'Chihuahua',
+    photoUrl: 'https://images.dog.ceo/breeds/chihuahua/n02085620_8578.jpg',
+    photoHash: 'hash13'
+  },
+  {
+    id: '14',
+    name: 'Tucker',
+    breed: 'Australian Shepherd',
+    photoUrl: 'https://images.dog.ceo/breeds/australian-shepherd/leroy.jpg',
+    photoHash: 'hash14'
+  },
+  {
+    id: '15',
+    name: 'Zoe',
+    breed: 'Great Dane',
+    photoUrl: 'https://images.dog.ceo/breeds/dane-great/n02109047_28577.jpg',
+    photoHash: 'hash15'
   }
 ];
 
@@ -108,16 +192,33 @@ app.post('/auth/login', (req, res) => {
 
 // Get all dogs
 app.get('/api/dogs', verifyToken, (req, res) => {
-  // Extract nextToken from query parameters (for pagination)
-  const { nextToken } = req.query;
+  // Extract nextToken and limit from query parameters
+  const { nextToken, limit = 12 } = req.query;
 
-  // In a real implementation, we would use the nextToken to fetch the next page
-  // For this mock server, we'll just return all dogs for any request
+  let startIndex = 0;
+  if (nextToken) {
+    // nextToken is the ID to start after
+    const tokenIndex = dogs.findIndex(d => d.id === nextToken);
+    if (tokenIndex >= 0) {
+      startIndex = tokenIndex + 1;
+    }
+  }
+
+  // Convert limit to number
+  const limitNum = parseInt(limit, 10);
+
+  // Get slice of dogs based on pagination
+  const endIndex = Math.min(startIndex + limitNum, dogs.length);
+  const dogsPage = dogs.slice(startIndex, endIndex);
+
+  // Calculate next token (if there are more dogs)
+  const hasMore = endIndex < dogs.length;
+  const nextPageToken = hasMore ? dogs[endIndex - 1].id : null;
 
   // Return in the format of DogList with dogs array and nextToken
   res.json({
-    dogs: dogs,
-    nextToken: null // For pagination in the future
+    dogs: dogsPage,
+    nextToken: nextPageToken
   });
 });
 
