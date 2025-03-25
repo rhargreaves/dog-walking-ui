@@ -12,12 +12,36 @@ let dogs = [
   {
     id: '1',
     name: 'Rex',
-    breed: 'German Shepherd'
+    breed: 'German Shepherd',
+    dateOfBirth: '2020-01-15',
+    energyLevel: 4,
+    isNeutered: true,
+    sex: 'male',
+    size: 'large',
+    socialization: {
+      goodWithChildren: true,
+      goodWithLargeDogs: true,
+      goodWithPuppies: true,
+      goodWithSmallDogs: false
+    },
+    specialInstructions: 'Needs to be walked separately from small dogs'
   },
   {
     id: '2',
     name: 'Buddy',
     breed: 'Golden Retriever',
+    dateOfBirth: '2019-06-20',
+    energyLevel: 5,
+    isNeutered: true,
+    sex: 'male',
+    size: 'large',
+    socialization: {
+      goodWithChildren: true,
+      goodWithLargeDogs: true,
+      goodWithPuppies: true,
+      goodWithSmallDogs: true
+    },
+    specialInstructions: 'Loves to play fetch',
     photoUrl: 'https://images.dog.ceo/breeds/retriever-golden/n02099601_3697.jpg',
     photoHash: 'hash2'
   },
@@ -242,14 +266,57 @@ app.get('/api/dogs/:id', verifyToken, (req, res) => {
 
 // Create a new dog
 app.post('/api/dogs', verifyToken, (req, res) => {
-  // Extract only the properties defined in the API spec
-  const { name, breed } = req.body;
+  const {
+    name,
+    breed,
+    dateOfBirth,
+    energyLevel,
+    isNeutered,
+    sex,
+    size,
+    socialization,
+    specialInstructions
+  } = req.body;
+
+  // Validate required fields
+  if (!energyLevel || !sex || !size) {
+    return res.status(400).json({
+      error: { code: 400, message: 'energyLevel, sex, and size are required fields' }
+    });
+  }
+
+  // Validate energyLevel range
+  if (energyLevel < 1 || energyLevel > 5) {
+    return res.status(400).json({
+      error: { code: 400, message: 'energyLevel must be between 1 and 5' }
+    });
+  }
+
+  // Validate sex values
+  if (!['male', 'female'].includes(sex)) {
+    return res.status(400).json({
+      error: { code: 400, message: 'sex must be either "male" or "female"' }
+    });
+  }
+
+  // Validate size values
+  if (!['small', 'medium', 'large'].includes(size)) {
+    return res.status(400).json({
+      error: { code: 400, message: 'size must be either "small", "medium", or "large"' }
+    });
+  }
 
   const newDog = {
     id: (dogs.length + 1).toString(),
     name,
     breed,
-    // photoUrl and photoHash will be added when a photo is uploaded
+    dateOfBirth,
+    energyLevel,
+    isNeutered,
+    sex,
+    size,
+    socialization,
+    specialInstructions
   };
 
   dogs.push(newDog);
@@ -265,12 +332,55 @@ app.put('/api/dogs/:id', verifyToken, (req, res) => {
     });
   }
 
-  // Extract only the properties defined in the API spec
-  const { name, breed } = req.body;
+  const {
+    name,
+    breed,
+    dateOfBirth,
+    energyLevel,
+    isNeutered,
+    sex,
+    size,
+    socialization,
+    specialInstructions
+  } = req.body;
 
-  // Update only the properties that are allowed to be updated
+  // Validate energyLevel if provided
+  if (energyLevel !== undefined) {
+    if (energyLevel < 1 || energyLevel > 5) {
+      return res.status(400).json({
+        error: { code: 400, message: 'energyLevel must be between 1 and 5' }
+      });
+    }
+    dogs[index].energyLevel = energyLevel;
+  }
+
+  // Validate sex if provided
+  if (sex !== undefined) {
+    if (!['male', 'female'].includes(sex)) {
+      return res.status(400).json({
+        error: { code: 400, message: 'sex must be either "male" or "female"' }
+      });
+    }
+    dogs[index].sex = sex;
+  }
+
+  // Validate size if provided
+  if (size !== undefined) {
+    if (!['small', 'medium', 'large'].includes(size)) {
+      return res.status(400).json({
+        error: { code: 400, message: 'size must be either "small", "medium", or "large"' }
+      });
+    }
+    dogs[index].size = size;
+  }
+
+  // Update other fields if provided
   if (name !== undefined) dogs[index].name = name;
   if (breed !== undefined) dogs[index].breed = breed;
+  if (dateOfBirth !== undefined) dogs[index].dateOfBirth = dateOfBirth;
+  if (isNeutered !== undefined) dogs[index].isNeutered = isNeutered;
+  if (socialization !== undefined) dogs[index].socialization = socialization;
+  if (specialInstructions !== undefined) dogs[index].specialInstructions = specialInstructions;
 
   // Don't allow direct updates to photoUrl or photoHash through this endpoint
 

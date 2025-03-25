@@ -10,6 +10,8 @@ import {
   Spinner,
   Text,
   Stack,
+  Badge,
+  HStack,
 } from '@chakra-ui/react';
 import { dogService } from '../services/api';
 import { Dog } from '../types';
@@ -254,6 +256,67 @@ const DogDetails: React.FC = () => {
           <Text fontSize="xl" mb={4} color="gray.600">
             {dog.breed || 'Unknown'}
           </Text>
+
+          <Stack spacing={4}>
+            <Box>
+              <Text fontWeight="bold">Basic Information</Text>
+              <Stack spacing={2} mt={2}>
+                <HStack>
+                  <Text color="gray.600">Size:</Text>
+                  <Badge colorScheme="blue">{dog.size}</Badge>
+                </HStack>
+                <HStack>
+                  <Text color="gray.600">Sex:</Text>
+                  <Badge colorScheme="green">{dog.sex}</Badge>
+                </HStack>
+                <HStack>
+                  <Text color="gray.600">Energy Level:</Text>
+                  <Badge colorScheme="purple">{dog.energyLevel}/5</Badge>
+                </HStack>
+                {dog.dateOfBirth && (
+                  <HStack>
+                    <Text color="gray.600">Date of Birth:</Text>
+                    <Text>{new Date(dog.dateOfBirth).toLocaleDateString()}</Text>
+                  </HStack>
+                )}
+                <HStack>
+                  <Text color="gray.600">Neutered:</Text>
+                  <Text>{dog.isNeutered ? 'Yes' : 'No'}</Text>
+                </HStack>
+              </Stack>
+            </Box>
+
+            {dog.socialization && (
+              <Box>
+                <Text fontWeight="bold">Socialization</Text>
+                <Stack spacing={2} mt={2}>
+                  <HStack>
+                    <Text color="gray.600">Good with Children:</Text>
+                    <Text>{dog.socialization.goodWithChildren ? 'Yes' : 'No'}</Text>
+                  </HStack>
+                  <HStack>
+                    <Text color="gray.600">Good with Large Dogs:</Text>
+                    <Text>{dog.socialization.goodWithLargeDogs ? 'Yes' : 'No'}</Text>
+                  </HStack>
+                  <HStack>
+                    <Text color="gray.600">Good with Puppies:</Text>
+                    <Text>{dog.socialization.goodWithPuppies ? 'Yes' : 'No'}</Text>
+                  </HStack>
+                  <HStack>
+                    <Text color="gray.600">Good with Small Dogs:</Text>
+                    <Text>{dog.socialization.goodWithSmallDogs ? 'Yes' : 'No'}</Text>
+                  </HStack>
+                </Stack>
+              </Box>
+            )}
+
+            {dog.specialInstructions && (
+              <Box>
+                <Text fontWeight="bold">Special Instructions</Text>
+                <Text mt={2} color="gray.600">{dog.specialInstructions}</Text>
+              </Box>
+            )}
+          </Stack>
 
           <Stack mt={8} direction="row" spacing={4}>
             <Button
