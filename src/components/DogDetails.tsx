@@ -36,9 +36,9 @@ const DogDetails: React.FC = () => {
         const fetchedDog = await dogService.getDog(id);
         setDog(fetchedDog);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching dog:', err);
-        setError(err.message || 'Failed to load dog details. Please try again later.');
+        setError(err instanceof Error ? err.message : 'Failed to load dog details. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -55,9 +55,9 @@ const DogDetails: React.FC = () => {
     try {
       await dogService.deleteDog(id);
       navigate('/');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting dog:', err);
-      alert(`Error deleting dog: ${err.message}`);
+      alert(`Error deleting dog: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
@@ -86,9 +86,9 @@ const DogDetails: React.FC = () => {
       // Refresh dog data to show updated photo
       const updatedDog = await dogService.getDog(id);
       setDog(updatedDog);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error uploading photo:', err);
-      alert(`Error uploading photo: ${err.message}`);
+      alert(`Error uploading photo: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setUploading(false);
     }
@@ -103,16 +103,14 @@ const DogDetails: React.FC = () => {
       setBreedConfidence(null);
 
       const response = await dogService.detectBreed(id);
-      setDog({
-        ...dog as Dog,
+      setDog(prev => prev ? {
+        ...prev,
         breed: response.breed
-      });
+      } : null);
       setBreedConfidence(response.confidence);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error detecting breed:', err);
-      // Handle the new error format
-      const errorMessage = err.message || 'Failed to detect breed. Please try again.';
-      setBreedError(errorMessage);
+      setBreedError(err instanceof Error ? err.message : 'Failed to detect breed. Please try again.');
     } finally {
       setDetecting(false);
     }

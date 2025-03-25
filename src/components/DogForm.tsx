@@ -19,7 +19,6 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   Checkbox,
-  CheckboxGroup,
   VStack,
 } from '@chakra-ui/react';
 import { dogService } from '../services/api';
@@ -56,9 +55,9 @@ const DogForm: React.FC = () => {
         const fetchedDog = await dogService.getDog(id);
         setDog(fetchedDog);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching dog:', err);
-        setError(err.message || 'Failed to load dog details. Please try again later.');
+        setError(err instanceof Error ? err.message : 'Failed to load dog details. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -68,7 +67,7 @@ const DogForm: React.FC = () => {
   }, [id, isEditing]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target as HTMLInputElement;
+    const { name, value, type } = e.target;
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       if (name.startsWith('socialization.')) {
@@ -110,9 +109,9 @@ const DogForm: React.FC = () => {
       }
 
       navigate('/');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving dog:', err);
-      setError(err.message || 'Failed to save dog. Please try again later.');
+      setError(err instanceof Error ? err.message : 'Failed to save dog. Please try again later.');
     } finally {
       setSaving(false);
     }
