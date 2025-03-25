@@ -178,7 +178,7 @@ const DogDetails: React.FC = () => {
   return (
     <Container maxW="1200px" mt={8}>
       <Flex direction={{ base: 'column', md: 'row' }} gap={8}>
-        <Box flex="1">
+        <Box flex="1" overflow="hidden">
           {dog.photoUrl ? (
             <Image
               src={dog.photoUrl}

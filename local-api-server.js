@@ -12,9 +12,7 @@ let dogs = [
   {
     id: '1',
     name: 'Rex',
-    breed: 'German Shepherd',
-    photoUrl: 'https://images.dog.ceo/breeds/germanshepherd/n02106662_6694.jpg',
-    photoHash: 'hash1'
+    breed: 'German Shepherd'
   },
   {
     id: '2',
