@@ -192,13 +192,22 @@ app.post('/auth/login', (req, res) => {
 
 // Get all dogs
 app.get('/api/dogs', verifyToken, (req, res) => {
-  // Extract nextToken and limit from query parameters
-  const { nextToken, limit = 12 } = req.query;
+  // Extract nextToken, limit, and name from query parameters
+  const { nextToken, limit = 12, name } = req.query;
+
+  // Filter dogs by name if provided
+  let filteredDogs = dogs;
+  if (name) {
+    const searchName = name.toLowerCase();
+    filteredDogs = dogs.filter(dog =>
+      dog.name.toLowerCase().includes(searchName)
+    );
+  }
 
   let startIndex = 0;
   if (nextToken) {
     // nextToken is the ID to start after
-    const tokenIndex = dogs.findIndex(d => d.id === nextToken);
+    const tokenIndex = filteredDogs.findIndex(d => d.id === nextToken);
     if (tokenIndex >= 0) {
       startIndex = tokenIndex + 1;
     }
@@ -208,12 +217,12 @@ app.get('/api/dogs', verifyToken, (req, res) => {
   const limitNum = parseInt(limit, 10);
 
   // Get slice of dogs based on pagination
-  const endIndex = Math.min(startIndex + limitNum, dogs.length);
-  const dogsPage = dogs.slice(startIndex, endIndex);
+  const endIndex = Math.min(startIndex + limitNum, filteredDogs.length);
+  const dogsPage = filteredDogs.slice(startIndex, endIndex);
 
   // Calculate next token (if there are more dogs)
-  const hasMore = endIndex < dogs.length;
-  const nextPageToken = hasMore ? dogs[endIndex - 1].id : null;
+  const hasMore = endIndex < filteredDogs.length;
+  const nextPageToken = hasMore ? filteredDogs[endIndex - 1].id : null;
 
   // Return in the format of DogList with dogs array and nextToken
   res.json({

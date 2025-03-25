@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Button, Container, Heading, SimpleGrid, Spinner, Text, useToast } from '@chakra-ui/react';
+import { Box, Button, Container, Heading, SimpleGrid, Spinner, Text, useToast, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { SearchIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
 import { dogService } from '../services/api';
 import { Dog } from '../types';
@@ -11,6 +12,7 @@ const DogList: React.FC = () => {
   const [nextToken, setNextToken] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchName, setSearchName] = useState('');
   const toast = useToast();
 
   const fetchDogs = useCallback(async (token?: string) => {
@@ -21,7 +23,7 @@ const DogList: React.FC = () => {
         setLoading(true);
       }
 
-      const response = await dogService.getAllDogs(token);
+      const response = await dogService.getAllDogs(token, 12, searchName);
 
       if (token) {
         setDogs(prev => [...prev, ...response.dogs]);
@@ -33,7 +35,6 @@ const DogList: React.FC = () => {
       setError(null);
     } catch (err: any) {
       console.error('Error fetching dogs:', err);
-      // Extract error message from the API error format
       const errorMessage = err.message || 'Failed to load dogs. Please try again later.';
       setError(errorMessage);
       toast({
@@ -47,11 +48,15 @@ const DogList: React.FC = () => {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [toast]);
+  }, [toast, searchName]);
 
   useEffect(() => {
-    fetchDogs();
-  }, [fetchDogs]);
+    const debounceTimer = setTimeout(() => {
+      fetchDogs();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [fetchDogs, searchName]);
 
   const handleLoadMore = () => {
     if (nextToken) {
@@ -62,6 +67,20 @@ const DogList: React.FC = () => {
   return (
     <Container maxW="1200px" mt={8}>
       <Heading mb={6}>Available Dogs</Heading>
+
+      <Box mb={6}>
+        <InputGroup>
+          <InputLeftElement pointerEvents="none">
+            <SearchIcon color="gray.400" />
+          </InputLeftElement>
+          <Input
+            placeholder="Search dogs by name..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            maxW="400px"
+          />
+        </InputGroup>
+      </Box>
 
       {loading && (
         <Box textAlign="center" py={10}>

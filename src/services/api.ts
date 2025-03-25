@@ -86,10 +86,11 @@ export const extractErrorDetails = (error: any): ApiError => {
 
 export const dogService = {
   // Get all dogs
-  getAllDogs: async (nextToken?: string, limit: number = 12): Promise<{dogs: Dog[], nextToken?: string}> => {
+  getAllDogs: async (nextToken?: string, limit: number = 12, name?: string): Promise<{dogs: Dog[], nextToken?: string}> => {
     try {
       const params = {
         ...(nextToken ? { nextToken } : {}),
+        ...(name ? { name } : {}),
         limit
       };
       const response = await api.get<DogList>('/dogs', { params });
