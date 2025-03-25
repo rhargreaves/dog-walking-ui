@@ -12,9 +12,38 @@ import {
   Stack,
   Badge,
   HStack,
+  Progress,
 } from '@chakra-ui/react';
 import { dogService } from '../services/api';
 import { Dog } from '../types';
+
+const calculateAge = (dateOfBirth: string): number | null => {
+  if (!dateOfBirth) return null;
+
+  const birthDate = new Date(dateOfBirth);
+  if (isNaN(birthDate.getTime())) return null;
+
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+};
+
+const getEnergyEmoji = (level: number): string => {
+  switch (level) {
+    case 1: return '😴'; // Sleepy
+    case 2: return '😌'; // Calm
+    case 3: return '😄'; // Grinning
+    case 4: return '🚀'; // Rocket
+    case 5: return '🔥'; // Fire
+    default: return '❓';
+  }
+};
 
 const DogDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -117,7 +146,7 @@ const DogDetails: React.FC = () => {
   };
 
   // Handler for processing and uploading pasted images
-  const handlePaste = useCallback(async (event: ClipboardEvent) => {
+  const handlePaste = useCallback(async (event: globalThis.ClipboardEvent) => {
     if (!id || uploading) return;
 
     const items = event.clipboardData?.items;
@@ -269,12 +298,15 @@ const DogDetails: React.FC = () => {
                 </HStack>
                 <HStack>
                   <Text color="gray.600">Energy Level:</Text>
-                  <Badge colorScheme="purple">{dog.energyLevel}/5</Badge>
+                  <HStack>
+                    <Progress value={dog.energyLevel * 20} colorScheme="yellow" size="sm" width="100px" />
+                    <Text>{getEnergyEmoji(dog.energyLevel)}</Text>
+                  </HStack>
                 </HStack>
                 {dog.dateOfBirth && (
                   <HStack>
-                    <Text color="gray.600">Date of Birth:</Text>
-                    <Text>{new Date(dog.dateOfBirth).toLocaleDateString()}</Text>
+                    <Text color="gray.600">Age:</Text>
+                    <Text>{calculateAge(dog.dateOfBirth)} years old</Text>
                   </HStack>
                 )}
                 <HStack>

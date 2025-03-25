@@ -77,6 +77,11 @@ let dogs = [
     id: '7',
     name: 'Lucy',
     breed: 'Siberian Husky',
+    sex: 'female',
+    size: 'large',
+    energyLevel: 5,
+    dateOfBirth: '2017-01-15',
+    isNeutered: true,
     photoUrl: 'https://images.dog.ceo/breeds/husky/n02110185_10047.jpg',
     photoHash: 'hash7'
   },

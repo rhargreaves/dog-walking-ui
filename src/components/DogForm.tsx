@@ -20,9 +20,27 @@ import {
   NumberDecrementStepper,
   Checkbox,
   VStack,
+  HStack,
 } from '@chakra-ui/react';
 import { dogService } from '../services/api';
 import { Dog } from '../types';
+
+const calculateAge = (dateOfBirth: string): number | null => {
+  if (!dateOfBirth) return null;
+
+  const birthDate = new Date(dateOfBirth);
+  if (isNaN(birthDate.getTime())) return null;
+
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+};
 
 const initialDogState: Partial<Dog> = {
   name: '',
@@ -62,6 +80,7 @@ const DogForm: React.FC = () => {
         setDog({
           ...initialDogState,
           ...fetchedDog,
+          dateOfBirth: fetchedDog.dateOfBirth || '',
           energyLevel: fetchedDog.energyLevel || 3,
           sex: fetchedDog.sex || 'male',
           size: fetchedDog.size || 'medium',
@@ -209,12 +228,20 @@ const DogForm: React.FC = () => {
 
           <FormControl>
             <FormLabel>Date of Birth</FormLabel>
-            <Input
-              name="dateOfBirth"
-              type="date"
-              value={dog.dateOfBirth || ''}
-              onChange={handleInputChange}
-            />
+            <HStack>
+              <Input
+                name="dateOfBirth"
+                type="date"
+                value={dog.dateOfBirth || ''}
+                onChange={handleInputChange}
+                flex="1"
+              />
+              {dog.dateOfBirth && calculateAge(dog.dateOfBirth) !== null && (
+                <Text color="gray.600" minW="100px">
+                  {calculateAge(dog.dateOfBirth)} years old
+                </Text>
+              )}
+            </HStack>
           </FormControl>
 
           <FormControl isRequired>
