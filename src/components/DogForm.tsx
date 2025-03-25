@@ -24,22 +24,27 @@ import {
 import { dogService } from '../services/api';
 import { Dog } from '../types';
 
+const initialDogState: Partial<Dog> = {
+  name: '',
+  breed: '',
+  dateOfBirth: '',
+  energyLevel: 3,
+  isNeutered: false,
+  sex: 'male',
+  size: 'medium',
+  socialization: {
+    goodWithChildren: false,
+    goodWithLargeDogs: false,
+    goodWithPuppies: false,
+    goodWithSmallDogs: false
+  },
+  specialInstructions: ''
+};
+
 const DogForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [dog, setDog] = useState<Partial<Dog>>({
-    name: '',
-    breed: '',
-    energyLevel: 3,
-    sex: 'male',
-    size: 'medium',
-    socialization: {
-      goodWithChildren: false,
-      goodWithLargeDogs: false,
-      goodWithPuppies: false,
-      goodWithSmallDogs: false
-    }
-  });
+  const [dog, setDog] = useState<Partial<Dog>>(initialDogState);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +58,18 @@ const DogForm: React.FC = () => {
       try {
         setLoading(true);
         const fetchedDog = await dogService.getDog(id);
-        setDog(fetchedDog);
+        // Ensure all required fields have valid values
+        setDog({
+          ...initialDogState,
+          ...fetchedDog,
+          energyLevel: fetchedDog.energyLevel || 3,
+          sex: fetchedDog.sex || 'male',
+          size: fetchedDog.size || 'medium',
+          socialization: {
+            ...initialDogState.socialization,
+            ...fetchedDog.socialization
+          }
+        });
         setError(null);
       } catch (err: unknown) {
         console.error('Error fetching dog:', err);
@@ -88,24 +104,57 @@ const DogForm: React.FC = () => {
   };
 
   const handleNumberChange = (value: string, name: string) => {
-    setDog(prev => ({ ...prev, [name]: parseInt(value, 10) }));
+    const numValue = parseInt(value, 10);
+    if (!isNaN(numValue)) {
+      setDog(prev => ({ ...prev, [name]: numValue }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!dog.name || !dog.energyLevel || !dog.sex || !dog.size) {
-      setError('Name, energy level, sex, and size are required fields');
+    // Check if required fields have valid values
+    if (!dog.name?.trim()) {
+      setError('Name is required');
+      return;
+    }
+
+    if (!dog.energyLevel || dog.energyLevel < 1 || dog.energyLevel > 5) {
+      setError('Energy level must be between 1 and 5');
+      return;
+    }
+
+    if (!dog.sex || !['male', 'female'].includes(dog.sex)) {
+      setError('Sex must be either male or female');
+      return;
+    }
+
+    if (!dog.size || !['small', 'medium', 'large'].includes(dog.size)) {
+      setError('Size must be either small, medium, or large');
       return;
     }
 
     try {
       setSaving(true);
 
+      // Ensure all required fields are present and valid before submitting
+      const dogToSubmit = {
+        ...dog,
+        energyLevel: dog.energyLevel || 3,
+        sex: dog.sex || 'male',
+        size: dog.size || 'medium',
+        socialization: {
+          goodWithChildren: dog.socialization?.goodWithChildren || false,
+          goodWithLargeDogs: dog.socialization?.goodWithLargeDogs || false,
+          goodWithPuppies: dog.socialization?.goodWithPuppies || false,
+          goodWithSmallDogs: dog.socialization?.goodWithSmallDogs || false
+        }
+      };
+
       if (isEditing && id) {
-        await dogService.updateDog(id, dog);
+        await dogService.updateDog(id, dogToSubmit);
       } else {
-        await dogService.createDog(dog as Omit<Dog, 'id'>);
+        await dogService.createDog(dogToSubmit as Omit<Dog, 'id'>);
       }
 
       navigate('/');
