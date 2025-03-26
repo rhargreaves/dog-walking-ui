@@ -172,11 +172,11 @@ const DogForm: React.FC = () => {
 
       if (isEditing && id) {
         await dogService.updateDog(id, dogToSubmit);
+        navigate(`/dogs/${id}`);
       } else {
         await dogService.createDog(dogToSubmit as Omit<Dog, 'id'>);
+        navigate('/');
       }
-
-      navigate('/');
     } catch (err: unknown) {
       console.error('Error saving dog:', err);
       setError(err instanceof Error ? err.message : 'Failed to save dog. Please try again later.');
