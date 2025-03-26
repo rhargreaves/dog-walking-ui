@@ -311,7 +311,7 @@ const DogDetails: React.FC = () => {
                 )}
                 <HStack>
                   <Text color="gray.600">Neutered:</Text>
-                  <Text>{dog.isNeutered ? 'Yes' : 'No'}</Text>
+                  <Text color={dog.isNeutered ? 'green.500' : 'red.500'}>{dog.isNeutered ? 'Yes' : 'No'}</Text>
                 </HStack>
               </Stack>
             </Box>
@@ -322,19 +322,19 @@ const DogDetails: React.FC = () => {
                 <Stack spacing={2} mt={2}>
                   <HStack>
                     <Text color="gray.600">Good with Children:</Text>
-                    <Text>{dog.socialization.goodWithChildren ? 'Yes' : 'No'}</Text>
+                    <Text color={dog.socialization.goodWithChildren ? 'green.500' : 'red.500'}>{dog.socialization.goodWithChildren ? 'Yes' : 'No'}</Text>
                   </HStack>
                   <HStack>
                     <Text color="gray.600">Good with Large Dogs:</Text>
-                    <Text>{dog.socialization.goodWithLargeDogs ? 'Yes' : 'No'}</Text>
+                    <Text color={dog.socialization.goodWithLargeDogs ? 'green.500' : 'red.500'}>{dog.socialization.goodWithLargeDogs ? 'Yes' : 'No'}</Text>
                   </HStack>
                   <HStack>
                     <Text color="gray.600">Good with Puppies:</Text>
-                    <Text>{dog.socialization.goodWithPuppies ? 'Yes' : 'No'}</Text>
+                    <Text color={dog.socialization.goodWithPuppies ? 'green.500' : 'red.500'}>{dog.socialization.goodWithPuppies ? 'Yes' : 'No'}</Text>
                   </HStack>
                   <HStack>
                     <Text color="gray.600">Good with Small Dogs:</Text>
-                    <Text>{dog.socialization.goodWithSmallDogs ? 'Yes' : 'No'}</Text>
+                    <Text color={dog.socialization.goodWithSmallDogs ? 'green.500' : 'red.500'}>{dog.socialization.goodWithSmallDogs ? 'Yes' : 'No'}</Text>
                   </HStack>
                 </Stack>
               </Box>
