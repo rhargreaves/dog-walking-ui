@@ -3,7 +3,7 @@
 [![Deploy to UAT](https://github.com/rhargreaves/dog-walking-ui/actions/workflows/deploy-uat.yaml/badge.svg)](https://github.com/rhargreaves/dog-walking-ui/actions/workflows/deploy-uat.yaml)
 [![Deploy to PROD](https://github.com/rhargreaves/dog-walking-ui/actions/workflows/deploy-prod.yaml/badge.svg)](https://github.com/rhargreaves/dog-walking-ui/actions/workflows/deploy-prod.yaml)
 
-React site for the fictional [Dog Walking Service](https://github.com/rhargreaves/dog-walking).
+[React site](https://dog-walking-demo.roberthargreaves.com) for the fictional [Dog Walking Service API](https://github.com/rhargreaves/dog-walking).
 
 > [!CAUTION]
 > The code here has almost entirely been produced by AI :sparkles:. It is a quick-and-dirty UI which I am using to drive out new features for the [underlying API](https://github.com/rhargreaves/dog-walking) which I have taken more care on. Do not judge me on it! :smile:
