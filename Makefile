@@ -27,9 +27,9 @@ start-auth:
 .PHONY: start-auth
 
 ## Start all development servers (UI + local API server)
-dev: install
+dev-server: install
 	npm run dev
-.PHONY: dev
+.PHONY: dev-server
 
 install:
 	npm install

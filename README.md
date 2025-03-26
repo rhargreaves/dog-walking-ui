@@ -1,9 +1,13 @@
-# Dog Walking UI
+# Dog Walking Service Web Frontend
 
-Frontend React SPA for the [Dog Walking Service](https://github.com/rhargreaves/dog-walking).
+React site for the fictional [Dog Walking Service](https://github.com/rhargreaves/dog-walking).
 
 > [!CAUTION]
-> The code here has almost entirely been produced by AI :sparkles: since I am not a natural front-end developer. It is a quick-and-dirty UI which I am using to drive out new features for the underlying API. Do not judge me on it! :smile:
+> The code here has almost entirely been produced by AI :sparkles:. It is a quick-and-dirty UI which I am using to drive out new features for the [underlying API](https://github.com/rhargreaves/dog-walking) which I have taken more care on. Do not judge me on it! :smile:
+
+## Screenshot
+
+<img src="docs/dog-details.jpg" alt="Dog details" />
 
 ## Features
 
@@ -12,8 +16,6 @@ Frontend React SPA for the [Dog Walking Service](https://github.com/rhargreaves/
 - Update existing dog profiles
 - Upload dog photos
 - Automatic breed detection from photos
-- Authentication with AWS Cognito
-- Protected routes for authorized users
 
 ## Development Setup
 
@@ -22,20 +24,18 @@ Frontend React SPA for the [Dog Walking Service](https://github.com/rhargreaves/
 - Node.js (v16 or newer)
 - npm
 
-### Installation
+### Build
 
 1. Clone the repository
-2. Install dependencies:
-```
-npm install
-```
+2. Install dependencies: `npm install`
+3. Build: `make build`
 
 ### Running the Application
 
 For local development, the application uses a fake backend server that includes both authentication and API endpoints:
 
 ```
-npm run dev
+make dev-server
 ```
 
 This will start both:
@@ -44,56 +44,27 @@ This will start both:
 
 ### Authentication
 
-In development mode, the application uses a local authentication server. You can log in with any username and password.
-
-In production, the application uses AWS Cognito for authentication. The authentication flow includes:
-
-1. User login via Cognito
-2. JWT token storage and management
-3. Protected routes that require authentication
+- Local: You can log in with any username and password
+- Production: AWS Cognito
 
 ### Environment Variables
 
-Create a `.env` file with the following variables for production:
-
-```
-REACT_APP_API_BASE_URL=https://your-api-domain.com
-REACT_APP_COGNITO_USER_POOL_ID=your-cognito-user-pool-id
-REACT_APP_COGNITO_CLIENT_ID=your-cognito-client-id
-REACT_APP_AWS_REGION=your-aws-region
-```
+Create a `.env` file using the [.example.env](.example.env) template.
 
 ## Deployment
 
-This application is deployed to Cloudflare Pages. Use the Makefile to handle deployment:
+This application is deployed to Cloudflare Pages.
 
 ```
-make deploy-preview  # Deploy to preview environment
-make deploy-prod     # Deploy to production environment
-```
-
-## Server Communication
-
-The API service for the application includes endpoints for:
-- Managing dogs (CRUD operations)
-- Uploading dog photos
-- Detecting dog breeds from photos
-
-In development mode, all API requests go to the local development server on port 3002.
-In production, requests go to the real API defined by REACT_APP_API_BASE_URL.
-
-## Building for Production
-
-```
-make build
+make deploy
 ```
 
 This will create a production build in the `build` directory.
 
-## SPA Routing
+### Routing
 
 This app uses client-side routing. The `functions/_middleware.js` file is configured to handle SPA routing in Cloudflare Pages.
 
 ## License
 
-MIT
+GNU AGPL v3
