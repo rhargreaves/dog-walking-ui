@@ -1,5 +1,8 @@
 # Dog Walking Service Web Frontend
 
+[![Deploy to UAT](https://github.com/rhargreaves/dog-walking-ui/actions/workflows/deploy-uat.yaml/badge.svg)](https://github.com/rhargreaves/dog-walking-ui/actions/workflows/deploy-uat.yaml)
+[![Deploy to PROD](https://github.com/rhargreaves/dog-walking-ui/actions/workflows/deploy-prod.yaml/badge.svg)](https://github.com/rhargreaves/dog-walking-ui/actions/workflows/deploy-prod.yaml)
+
 React site for the fictional [Dog Walking Service](https://github.com/rhargreaves/dog-walking).
 
 > [!CAUTION]
