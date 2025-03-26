@@ -5,10 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
-environment: uat
-
 jobs:
   deploy:
+    environment: uat
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

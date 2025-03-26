@@ -3,10 +3,9 @@ name: Deploy to PROD
 on:
   workflow_dispatch:
 
-environment: prod
-
 jobs:
   deploy:
+    environment: prod
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
