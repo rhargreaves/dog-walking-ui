@@ -1,9 +1,11 @@
-name: Deploy to Cloudflare Pages
+name: Deploy to UAT
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
+environment: uat
 
 jobs:
   deploy:

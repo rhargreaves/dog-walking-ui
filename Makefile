@@ -50,7 +50,10 @@ create-project:
 .PHONY: create-project
 
 deploy: build
-	$(WRANGLER) pages deploy $(BUILD_DIR) --project-name=$(PROJECT_NAME) --commit-dirty=true
+	$(WRANGLER) pages deploy $(BUILD_DIR) \
+	--project-name=$(PROJECT_NAME) \
+	--commit-dirty=true \
+	--branch=$(BRANCH)
 .PHONY: deploy
 
 clean:
