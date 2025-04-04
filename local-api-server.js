@@ -432,40 +432,9 @@ app.put('/api/dogs/:id/photo', verifyToken, (req, res) => {
   const randomNum = Math.floor(Math.random() * 9999);
   dogs[index].photoUrl = `https://images.dog.ceo/breeds/retriever-golden/n02099601_${randomNum}.jpg`;
   dogs[index].photoHash = `hash_${randomNum}`; // Add a random photoHash
+  dogs[index].photoStatus = 'pending'; // Set initial status as pending
 
   res.json(dogs[index]);
-});
-
-// Placeholder for detect breed from photo
-app.post('/api/dogs/:id/photo/detect-breed', verifyToken, (req, res) => {
-  const index = dogs.findIndex(d => d.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({
-      error: { code: 404, message: 'Dog not found' }
-    });
-  }
-
-  // Check if the dog has a photo
-  if (!dogs[index].photoUrl) {
-    return res.status(400).json({
-      error: { code: 400, message: 'No photo available for breed detection' }
-    });
-  }
-
-  // In development, just return a random breed with confidence score
-  const breeds = ['Golden Retriever', 'Labrador', 'German Shepherd', 'Beagle', 'Poodle', 'Bulldog'];
-  const randomBreed = breeds[Math.floor(Math.random() * breeds.length)];
-  const confidence = Math.round((0.7 + Math.random() * 0.3) * 100); // Random confidence between 70 and 100
-
-  // Update the dog's breed
-  dogs[index].breed = randomBreed;
-
-  // Return the detected breed information
-  res.json({
-    id: dogs[index].id,
-    breed: randomBreed,
-    confidence: confidence
-  });
 });
 
 // Health check endpoint

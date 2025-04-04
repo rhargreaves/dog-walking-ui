@@ -17,13 +17,29 @@ const DogCard: React.FC<DogCardProps> = ({ dog }) => {
       _hover={{ transform: 'scale(1.02)' }}
     >
       {dog.photoUrl ? (
-        <Image
-          src={dog.photoUrl}
-          alt={dog.name}
-          height="200px"
-          width="100%"
-          objectFit="cover"
-        />
+        <Box position="relative">
+          <Image
+            src={dog.photoUrl}
+            alt={dog.name}
+            height="200px"
+            width="100%"
+            objectFit="cover"
+          />
+          {dog.photoStatus && (
+            <Badge
+              position="absolute"
+              top={2}
+              right={2}
+              colorScheme={
+                dog.photoStatus === 'approved' ? 'green' :
+                dog.photoStatus === 'rejected' ? 'red' :
+                'yellow'
+              }
+            >
+              {dog.photoStatus.charAt(0).toUpperCase() + dog.photoStatus.slice(1)}
+            </Badge>
+          )}
+        </Box>
       ) : (
         <Box
           bg="gray.200"

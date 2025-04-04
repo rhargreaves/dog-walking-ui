@@ -16,6 +16,7 @@ export interface Dog {
   specialInstructions?: string;
   photoUrl?: string;
   photoHash?: string;
+  photoStatus?: 'pending' | 'approved' | 'rejected';
 }
 
 export interface DogList {

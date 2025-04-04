@@ -52,9 +52,8 @@ const DogDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [detecting, setDetecting] = useState(false);
-  const [breedConfidence, setBreedConfidence] = useState<number | null>(null);
   const [breedError, setBreedError] = useState<string | null>(null);
+  const [breedConfidence, setBreedConfidence] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchDog = async () => {
@@ -123,28 +122,6 @@ const DogDetails: React.FC = () => {
     }
   }, [id]);
 
-  const handleDetectBreed = async () => {
-    if (!id) return;
-
-    try {
-      setDetecting(true);
-      setBreedError(null);
-      setBreedConfidence(null);
-
-      const response = await dogService.detectBreed(id);
-      setDog(prev => prev ? {
-        ...prev,
-        breed: response.breed
-      } : null);
-      setBreedConfidence(response.confidence);
-    } catch (err: unknown) {
-      console.error('Error detecting breed:', err);
-      setBreedError(err instanceof Error ? err.message : 'Failed to detect breed. Please try again.');
-    } finally {
-      setDetecting(false);
-    }
-  };
-
   // Handler for processing and uploading pasted images
   const handlePaste = useCallback(async (event: globalThis.ClipboardEvent) => {
     if (!id || uploading) return;
@@ -209,14 +186,36 @@ const DogDetails: React.FC = () => {
       <Flex direction={{ base: 'column', md: 'row' }} gap={8}>
         <Box flex="1" overflow="hidden">
           {dog.photoUrl ? (
-            <Image
-              src={dog.photoUrl}
-              alt={dog.name}
-              borderRadius="lg"
-              objectFit="cover"
-              maxH="400px"
-              w="100%"
-            />
+            <>
+              <Image
+                src={dog.photoUrl}
+                alt={dog.name}
+                borderRadius="lg"
+                objectFit="cover"
+                maxH="400px"
+                w="100%"
+              />
+              {dog.photoStatus && (
+                <Box
+                  bg={
+                    dog.photoStatus === 'approved' ? 'green.100' :
+                    dog.photoStatus === 'rejected' ? 'red.100' :
+                    'yellow.100'
+                  }
+                  p={3}
+                  borderRadius="md"
+                  color={
+                    dog.photoStatus === 'approved' ? 'green.800' :
+                    dog.photoStatus === 'rejected' ? 'red.800' :
+                    'yellow.800'
+                  }
+                >
+                  <Text>
+                    Photo Status: <strong>{dog.photoStatus.charAt(0).toUpperCase() + dog.photoStatus.slice(1)}</strong>
+                  </Text>
+                </Box>
+              )}
+            </>
           ) : (
             <Box
               bg="gray.200"
@@ -249,16 +248,6 @@ const DogDetails: React.FC = () => {
                 You can also paste an image directly (Ctrl+V/Cmd+V)
               </Text>
             </Box>
-
-            {dog.photoUrl && (
-              <Button
-                colorScheme="purple"
-                onClick={handleDetectBreed}
-                disabled={detecting}
-              >
-                {detecting ? 'Detecting...' : 'Detect Breed'}
-              </Button>
-            )}
 
             {breedError && (
               <Box bg="red.100" p={3} borderRadius="md" color="red.800">

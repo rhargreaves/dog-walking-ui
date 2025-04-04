@@ -86,28 +86,20 @@ export const extractErrorDetails = (error: any): ApiError => {
 
 export const dogService = {
   // Get all dogs
-  getAllDogs: async (nextToken?: string, limit: number = 12, name?: string): Promise<{dogs: Dog[], nextToken?: string}> => {
+  getDogs: async (params?: { limit?: number; name?: string; nextToken?: string }): Promise<{ dogs: Dog[]; nextToken?: string }> => {
     try {
-      const params = {
-        ...(nextToken ? { nextToken } : {}),
-        ...(name ? { name } : {}),
-        limit
-      };
-      const response = await api.get<DogList>('/dogs', { params });
-      return {
-        dogs: response.data.dogs,
-        nextToken: response.data.nextToken
-      };
+      const response = await api.get('/dogs', { params });
+      return response.data;
     } catch (error) {
       console.error('Error fetching dogs:', error);
       throw extractErrorDetails(error);
     }
   },
 
-  // Get a specific dog by ID
+  // Get a single dog by ID
   getDog: async (id: string): Promise<Dog> => {
     try {
-      const response = await api.get<Dog>(`/dogs/${id}`);
+      const response = await api.get(`/dogs/${id}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching dog ${id}:`, error);
@@ -118,7 +110,7 @@ export const dogService = {
   // Create a new dog
   createDog: async (dog: Omit<Dog, 'id'>): Promise<Dog> => {
     try {
-      const response = await api.post<Dog>('/dogs', dog);
+      const response = await api.post('/dogs', dog);
       return response.data;
     } catch (error) {
       console.error('Error creating dog:', error);
@@ -126,10 +118,10 @@ export const dogService = {
     }
   },
 
-  // Update an existing dog
+  // Update a dog
   updateDog: async (id: string, dog: Partial<Dog>): Promise<Dog> => {
     try {
-      const response = await api.put<Dog>(`/dogs/${id}`, dog);
+      const response = await api.put(`/dogs/${id}`, dog);
       return response.data;
     } catch (error) {
       console.error(`Error updating dog ${id}:`, error);
@@ -161,17 +153,6 @@ export const dogService = {
       });
     } catch (error) {
       console.error(`Error uploading photo for dog ${id}:`, error);
-      throw extractErrorDetails(error);
-    }
-  },
-
-  // Detect dog breed from photo
-  detectBreed: async (id: string): Promise<{ id: string, breed: string, confidence: number }> => {
-    try {
-      const response = await api.post(`/dogs/${id}/photo/detect-breed`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error detecting breed for dog ${id}:`, error);
       throw extractErrorDetails(error);
     }
   }

@@ -23,7 +23,11 @@ const DogList: React.FC = () => {
         setLoading(true);
       }
 
-      const response = await dogService.getAllDogs(token, 12, searchName);
+      const response = await dogService.getDogs({
+        nextToken: token,
+        limit: 12,
+        name: searchName
+      });
 
       if (token) {
         setDogs(prev => [...prev, ...response.dogs]);
