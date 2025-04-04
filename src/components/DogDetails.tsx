@@ -193,19 +193,15 @@ const DogDetails: React.FC = () => {
                 maxH="400px"
                 w="100%"
               />
-              {dog.photoStatus && (
+              {dog.photoStatus && dog.photoStatus !== 'approved' && (
                 <Box
                   bg={
-                    dog.photoStatus === 'approved' ? 'green.100' :
-                    dog.photoStatus === 'rejected' ? 'red.100' :
-                    'yellow.100'
+                    dog.photoStatus === 'rejected' ? 'red.100' : 'yellow.100'
                   }
                   p={3}
                   borderRadius="md"
                   color={
-                    dog.photoStatus === 'approved' ? 'green.800' :
-                    dog.photoStatus === 'rejected' ? 'red.800' :
-                    'yellow.800'
+                    dog.photoStatus === 'rejected' ? 'red.800' : 'yellow.800'
                   }
                 >
                   <Text>

@@ -25,15 +25,13 @@ const DogCard: React.FC<DogCardProps> = ({ dog }) => {
             width="100%"
             objectFit="cover"
           />
-          {dog.photoStatus && (
+          {dog.photoStatus && dog.photoStatus !== 'approved' && (
             <Badge
               position="absolute"
               top={2}
               right={2}
               colorScheme={
-                dog.photoStatus === 'approved' ? 'green' :
-                dog.photoStatus === 'rejected' ? 'red' :
-                'yellow'
+                dog.photoStatus === 'rejected' ? 'red' : 'yellow'
               }
             >
               {dog.photoStatus.charAt(0).toUpperCase() + dog.photoStatus.slice(1)}
