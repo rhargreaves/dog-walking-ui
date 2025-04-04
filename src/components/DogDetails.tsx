@@ -52,6 +52,7 @@ const DogDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [pollingPhotoStatus, setPollingPhotoStatus] = useState(false);
 
   useEffect(() => {
     const fetchDog = async () => {
@@ -109,12 +110,38 @@ const DogDetails: React.FC = () => {
       setUploading(true);
       await dogService.uploadDogPhoto(id, file);
 
-      // Refresh dog data to show updated photo
-      const updatedDog = await dogService.getDog(id);
-      setDog(updatedDog);
+      // Start polling for status updates
+      const startTime = Date.now();
+      const pollInterval = 1000; // Check every second
+      const maxDuration = 5000; // Poll for max 5 seconds
+      setPollingPhotoStatus(true);
+
+      const pollStatus = async () => {
+        if (Date.now() - startTime > maxDuration) {
+          // Stop polling after 5 seconds
+          const updatedDog = await dogService.getDog(id);
+          setDog(updatedDog);
+          setPollingPhotoStatus(false);
+          return;
+        }
+
+        const updatedDog = await dogService.getDog(id);
+        setDog(updatedDog);
+
+        // If status is still pending, continue polling
+        if (updatedDog.photoStatus === 'pending') {
+          setTimeout(pollStatus, pollInterval);
+        } else {
+          setPollingPhotoStatus(false);
+        }
+      };
+
+      // Start the polling
+      pollStatus();
     } catch (err: unknown) {
       console.error('Error uploading photo:', err);
       alert(`Error uploading photo: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setPollingPhotoStatus(false);
     } finally {
       setUploading(false);
     }
@@ -193,7 +220,21 @@ const DogDetails: React.FC = () => {
                 maxH="400px"
                 w="100%"
               />
-              {dog.photoStatus && dog.photoStatus !== 'approved' && (
+              {pollingPhotoStatus && (
+                <Box
+                  bg="blue.100"
+                  p={3}
+                  borderRadius="md"
+                  color="blue.800"
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                >
+                  <Spinner size="sm" />
+                  <Text>Checking photo status...</Text>
+                </Box>
+              )}
+              {!pollingPhotoStatus && dog.photoStatus && dog.photoStatus !== 'approved' && (
                 <Box
                   bg={
                     dog.photoStatus === 'rejected' ? 'red.100' : 'yellow.100'
