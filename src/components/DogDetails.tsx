@@ -246,7 +246,16 @@ const DogDetails: React.FC = () => {
                   }
                 >
                   <Text>
-                    Photo Status: <strong>{dog.photoStatus.charAt(0).toUpperCase() + dog.photoStatus.slice(1)}</strong>
+                    {(() => {
+                      switch (dog.photoStatus) {
+                        case 'pending':
+                          return <Text>Photo is being processed...</Text>;
+                        case 'rejected':
+                          return <Text>Photo rejected. Please be sure you are uploading a clear image of the dog.</Text>;
+                        default:
+                          return null;
+                      }
+                    })()}
                   </Text>
                 </Box>
               )}
