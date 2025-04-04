@@ -52,8 +52,6 @@ const DogDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [breedError, setBreedError] = useState<string | null>(null);
-  const [breedConfidence, setBreedConfidence] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchDog = async () => {
@@ -248,20 +246,6 @@ const DogDetails: React.FC = () => {
                 You can also paste an image directly (Ctrl+V/Cmd+V)
               </Text>
             </Box>
-
-            {breedError && (
-              <Box bg="red.100" p={3} borderRadius="md" color="red.800">
-                {breedError}
-              </Box>
-            )}
-
-            {breedConfidence !== null && (
-              <Box bg="blue.50" p={3} borderRadius="md">
-                <Text>
-                  Breed detected with <strong>{Math.round(breedConfidence)}%</strong> confidence
-                </Text>
-              </Box>
-            )}
           </Stack>
         </Box>
 

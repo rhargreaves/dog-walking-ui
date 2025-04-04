@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { Dog, DogList, ApiError } from '../types';
+import { Dog, ApiError } from '../types';
 
 // Extend Window interface to include our global auth token getter
 declare global {
